@@ -21,13 +21,18 @@ st.set_page_config(page_title="NPS Notes Analysis", layout="wide")
 st.title("RM Notes Analysis")
 st.write(
     "Upload an RM notes CSV and run the analysis. "
-    "The prompt in `prompt.txt` controls summarization and categories."
 )
 
 
 def ensure_api_key():
-    """Get API key from .env file and place into env for lazy client init."""
-    key = os.getenv("OPENAI_API_KEY")
+    """Get API key from Streamlit secrets (cloud) or .env file (local) and place into env for lazy client init."""
+    # Try Streamlit secrets first (for cloud deployment)
+    try:
+        key = st.secrets.get("OPENAI_API_KEY")
+    except (FileNotFoundError, KeyError):
+        # Fall back to .env file (for local development)
+        key = os.getenv("OPENAI_API_KEY")
+
     if key:
         os.environ["OPENAI_API_KEY"] = key.strip()
         return key.strip()
